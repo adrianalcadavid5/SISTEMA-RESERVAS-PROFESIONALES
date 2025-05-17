@@ -7,9 +7,16 @@ public record ProfesionalResponseDTO(
         String nombre,
         String apellido,
         String correo,
-        String celular
+        String celular,
+        Double costoHora
     ) {
     public ProfesionalResponseDTO(Profesional profesional){
-        this(profesional.getId(), profesional.getNombre(), profesional.getApellido(), profesional.getCorreo(), profesional.getCelular());
+        this(
+                profesional.getId(),
+                profesional.getNombre(),
+                profesional.getApellido(),
+                profesional.getCorreo(),
+                profesional.getCelular(),
+                profesional.getCostoHora());
     }
 }

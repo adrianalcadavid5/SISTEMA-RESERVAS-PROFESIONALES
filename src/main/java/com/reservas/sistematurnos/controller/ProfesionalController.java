@@ -1,7 +1,10 @@
 package com.reservas.sistematurnos.controller;
 
-import com.reservas.sistematurnos.model.Profesional;
-import com.reservas.sistematurnos.service.IProfesionalService;
+import com.reservas.sistematurnos.dto.profesional.ProfesionalModifyDTO;
+import com.reservas.sistematurnos.dto.profesional.ProfesionalRequestDTO;
+import com.reservas.sistematurnos.dto.profesional.ProfesionalResponseDTO;
+import com.reservas.sistematurnos.service.impl.ProfesionalService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,19 +12,23 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/profesionales")
 public class ProfesionalController {
-    private final IProfesionalService profesionalService;
 
-    public ProfesionalController(IProfesionalService profesionalService) {
+    private final ProfesionalService profesionalService;
+
+    public ProfesionalController(ProfesionalService profesionalService) {
         this.profesionalService = profesionalService;
     }
+
     @PostMapping
-    public ResponseEntity<Profesional> crear(@RequestBody Profesional profesional){
-        Profesional creado = profesionalService.guardar(profesional);
-        return ResponseEntity.status(HttpStatus.CREATED).body(creado);
+    public ResponseEntity<ProfesionalResponseDTO> crearProfesional(@RequestBody @Valid ProfesionalRequestDTO profesionalRequestDTO){
+        ProfesionalResponseDTO response = profesionalService.guardarDesdeDTO(profesionalRequestDTO);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-    @PutMapping
-    public ResponseEntity<Profesional> modificar(@RequestBody Profesional profesional){
-        Profesional actualizado = profesionalService.modificar(profesional);
+    @PutMapping("/{id}")
+    public ResponseEntity<ProfesionalResponseDTO> actualizarProfesional(
+            @PathVariable Long id,
+            @RequestBody @Valid ProfesionalModifyDTO profesionalModifyDTO){
+        ProfesionalResponseDTO actualizado = profesionalService.modificarDesdeDTO(id, profesionalModifyDTO);
         return ResponseEntity.ok(actualizado);
     }
 }

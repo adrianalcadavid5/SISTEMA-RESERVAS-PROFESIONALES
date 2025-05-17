@@ -2,10 +2,7 @@ package com.reservas.sistematurnos.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -22,13 +19,13 @@ public class Profesional {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull
+    @NotNull(message = "El nombre es obligatorio")
     private String nombre;
-    @NotNull
+    @NotNull(message = "El apellido es obligatorio")
     private String apellido;
     @Column(unique = true, nullable = false)
     @NotNull
-    @Email
+    @Email(message = "El correo debe de ser valido")
     private String correo;
     @NotNull
     @NotBlank(message = "La contraseña no puede estar vacía")
@@ -36,9 +33,9 @@ public class Profesional {
     private String password;
     @Column(unique = true, nullable = false)
     @NotNull
-    @Size(min = 10, max = 15)
+    @Pattern(regexp = "\\d{10}", message = "El teléfono debe tener 10 dgitos")
     private String celular;
-    @NotNull
+    @NotNull(message = "El valor de la hora debe de asignarse")
     private Double costoHora;
     @NotNull(message = "La especialidad no puede ser nula")
     @ManyToOne

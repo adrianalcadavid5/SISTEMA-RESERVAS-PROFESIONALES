@@ -1,6 +1,10 @@
 package com.reservas.sistematurnos.service.impl;
 
-import com.reservas.sistematurnos.exception.BadRequestException;
+import com.reservas.sistematurnos.dto.profesional.ProfesionalModifyDTO;
+import com.reservas.sistematurnos.dto.profesional.ProfesionalRequestDTO;
+import com.reservas.sistematurnos.dto.profesional.ProfesionalResponseDTO;
+import com.reservas.sistematurnos.exception.ResourceNotFoundException;
+import com.reservas.sistematurnos.mapper.ProfesionalMapper;
 import com.reservas.sistematurnos.model.Profesional;
 import com.reservas.sistematurnos.repository.profesional.IProfesionalRepository;
 import com.reservas.sistematurnos.service.IProfesionalService;
@@ -9,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 public class ProfesionalService extends BaseServiceImpl<Profesional, Long> implements IProfesionalService {
@@ -20,37 +23,52 @@ public class ProfesionalService extends BaseServiceImpl<Profesional, Long> imple
         super(profesionalRepository);
         this.profesionalRepository = profesionalRepository;
     }
+
+    // ======================= MAPEAR PARA LOS DTOS ========================
+
+    // ======================== GUARDAR DESDE DTO ========================
     @Transactional
-    @Override
-    public Profesional guardar(Profesional profesional) {
-        validarCorreoUnico(profesional.getCorreo());
-        return super.guardar(profesional);
+    public ProfesionalResponseDTO guardarDesdeDTO(ProfesionalRequestDTO dto){
+        validarCorreoUnico(dto.correo());
+        Profesional profesional = ProfesionalMapper.toEntity(dto);
+        Profesional guardado = profesionalRepository.save(profesional);
+        return ProfesionalMapper.toDto(guardado);
     }
+    // ======================== MODIFICAR DESDE DTO ========================
     @Transactional
-    @Override
-    public Profesional modificar(Profesional profesional) {
-        validarCorreoUnicoParaModificacion(profesional);
-        return super.modificar(profesional);
+    public ProfesionalResponseDTO modificarDesdeDTO(Long id, ProfesionalModifyDTO dto){
+        Profesional profesionalExistente = profesionalRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Profesional no encontrado con id: " + id));
+
+        validarCorreoUnicoParaModificacion(dto.correo(), id);
+
+        //actualizo manualmente los campos permitidos
+        profesionalExistente.setNombre(dto.nombre());
+        profesionalExistente.setApellido(dto.apellido());
+        profesionalExistente.setCorreo(dto.correo().trim().toLowerCase());
+        profesionalExistente.setPassword(dto.password());
+        profesionalExistente.setCelular(dto.celular());
+        profesionalExistente.setCostoHora(dto.costoHora());
+
+        Profesional actualizado = profesionalRepository.save(profesionalExistente);
+        return ProfesionalMapper.toDto(actualizado);
     }
+
+    // ======================== VALIDACIONES REUTILIZANDO BaseValidationsService ========================
+
     private void validarCorreoUnico(String correo){
-        if (correo == null || correo.trim().isEmpty()) {
-            throw new BadRequestException("El correo electrónico es obligatorio.");
-        }
-
-        Optional<Profesional> profesionalExistente = profesionalRepository.findByCorreo(correo.trim().toLowerCase());
-        if (profesionalExistente.isPresent()){
-            logger.info("Intento de registrar un correo ya existente: {}", correo);
-            throw new BadRequestException("El correo electrónico ya está registrado.");
-        }
+        new BaseValidationsService<Profesional>() {}.validarCorreoUnico(
+                correo,
+                profesionalRepository::findByCorreo
+        );
     }
-    private void validarCorreoUnicoParaModificacion(Profesional profesional){
-        if (profesional.getCorreo() == null || profesional.getCorreo().trim().isEmpty()) {
-            throw new BadRequestException("El correo electrónico no puede estar vacío.");
-        }
 
-        Optional<Profesional> existente = profesionalRepository.findByCorreo(profesional.getCorreo().trim().toLowerCase());
-        if (existente.isPresent() && !existente.get().getId().equals(profesional.getId())){
-            throw new BadRequestException("Ya existe otro profesional con ese correo electrónico.");
-        }
+    private void validarCorreoUnicoParaModificacion(String correo, Long id){
+        new BaseValidationsService<Profesional>(){}.validarCorreoUnicoParaModificacion(
+                correo,
+                id,
+                profesionalRepository::findByCorreo,
+                Profesional::getId
+        );
     }
 }

@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface IUsuarioRepository extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByCorreo(String correo);
-    boolean existsByRole(Rol rol);
+    boolean existsByRol(Rol rol);
 }

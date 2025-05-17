@@ -1,6 +1,5 @@
 package com.reservas.sistematurnos.dto.usuario;
 
-import com.reservas.sistematurnos.model.Rol;
 import com.reservas.sistematurnos.model.Usuario;
 
 public record UsuarioResponseDTO(
@@ -13,6 +12,13 @@ public record UsuarioResponseDTO(
         String rol
 ) {
     public UsuarioResponseDTO(Usuario usuario){
-        this(usuario.getId(), usuario.getNombre(), usuario.getApellido(), usuario.getIdentificacion(), usuario.getCorreo(), usuario.getCelular(), usuario.getRol() != null ? usuario.getRol().getUsuarioRol().name() : null);
+        this(
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getApellido(),
+                usuario.getIdentificacion(),
+                usuario.getCorreo(),
+                usuario.getCelular(),
+                usuario.getRol() != null ? usuario.getRol().getUsuarioRol().name() : null);
     }
 }
