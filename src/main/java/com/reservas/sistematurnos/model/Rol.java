@@ -30,6 +30,6 @@ public class Rol implements GrantedAuthority {
 
     @Override
     public String getAuthority() {
-        return usuarioRol.name();
+        return "ROLE_" + usuarioRol.name();
     }
 }

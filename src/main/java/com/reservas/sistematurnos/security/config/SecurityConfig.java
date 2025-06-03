@@ -6,27 +6,31 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/usuarios").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/usuarios").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/usuarios").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/profesionales").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/profesionales").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/profesionales").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/profesionales").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/usuarios").permitAll() // Registro
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/profesional/**").hasAnyRole("PROFESIONAL", "ADMIN")
+                        .requestMatchers("/user/**").hasAnyRole("USER", "PROFESIONAL", "ADMIN")
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults()); // Forma moderna
+                .httpBasic(Customizer.withDefaults()); // O JWT si usás tokens
 
         return http.build();
     }

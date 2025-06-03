@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
@@ -30,5 +32,13 @@ public class UsuarioController {
             @RequestBody @Valid UsuarioModifyDTO usuarioModifyDTO) {
         UsuarioResponseDTO actualizado = usuarioService.modificarDesdeDTO(id, usuarioModifyDTO);
         return ResponseEntity.ok(actualizado);
+    }
+    @GetMapping
+    public ResponseEntity<List<UsuarioResponseDTO>> listarTodos(){
+        return ResponseEntity.ok(usuarioService.buscarTodosDTO());
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<UsuarioResponseDTO> buscarUsuario(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.buscarPorIdDTO(id));
     }
 }
