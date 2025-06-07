@@ -20,12 +20,13 @@ public class Token {
     @Id
     @GeneratedValue
     private Long id;
+    @Column(nullable = false, unique = true)
     private String token;
 
     @Enumerated(EnumType.STRING)
     private TokenType type = TokenType.ACCESS;
-    public boolean revoked;
-    public boolean expired;
+    private boolean revoked;
+    private boolean expired;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
