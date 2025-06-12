@@ -33,7 +33,7 @@ public class UsuarioController {
         UsuarioResponseDTO actualizado = usuarioService.modificarDesdeDTO(id, usuarioModifyDTO);
         return ResponseEntity.ok(actualizado);
     }
-    @GetMapping
+    @GetMapping("/buscarTodos")
     public ResponseEntity<List<UsuarioResponseDTO>> listarTodos(){
         return ResponseEntity.ok(usuarioService.buscarTodosDTO());
     }

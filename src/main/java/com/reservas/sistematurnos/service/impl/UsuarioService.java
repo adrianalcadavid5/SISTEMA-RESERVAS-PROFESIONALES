@@ -12,6 +12,9 @@ import com.reservas.sistematurnos.model.UsuarioRol;
 import com.reservas.sistematurnos.repository.usuario.IRolUsuarioRepository;
 import com.reservas.sistematurnos.repository.usuario.IUsuarioRepository;
 import com.reservas.sistematurnos.service.IUsuarioService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -87,9 +91,10 @@ public class UsuarioService extends BaseServiceImpl  <Usuario, Long> implements 
     public List<UsuarioResponseDTO> buscarTodosDTO() {
         List<Usuario> usuarios = usuarioRepository.findAll();
         return usuarios.stream()
-                .map(this::mapearAUsuarioResponse)
-                .toList();
+                .map(UsuarioResponseDTO::new)
+                .collect(Collectors.toList());
     }
+
     @Override
     @Transactional(readOnly = true)
     public UsuarioResponseDTO buscarPorIdDTO(Long id) {

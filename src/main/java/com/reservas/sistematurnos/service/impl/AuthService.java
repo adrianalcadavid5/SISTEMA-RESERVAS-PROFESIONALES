@@ -4,7 +4,6 @@ import com.reservas.sistematurnos.dto.auth.AuthRequestDTO;
 import com.reservas.sistematurnos.dto.auth.AuthResponseDTO;
 import com.reservas.sistematurnos.dto.response.MessageResponseDTO;
 import com.reservas.sistematurnos.dto.usuario.UsuarioRequestDTO;
-import com.reservas.sistematurnos.dto.usuario.UsuarioResponseDTO;
 import com.reservas.sistematurnos.exception.UnauthorizedException;
 import com.reservas.sistematurnos.model.Rol;
 import com.reservas.sistematurnos.model.Token;
