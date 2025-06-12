@@ -1,5 +1,6 @@
 package com.reservas.sistematurnos.service.impl;
 
+import com.reservas.sistematurnos.dto.PageDTO.PageResponseDTO;
 import com.reservas.sistematurnos.dto.usuario.UsuarioModifyDTO;
 import com.reservas.sistematurnos.dto.usuario.UsuarioRequestDTO;
 import com.reservas.sistematurnos.dto.usuario.UsuarioResponseDTO;
@@ -54,29 +55,24 @@ public class UsuarioService extends BaseServiceImpl  <Usuario, Long> implements 
     }
     // ======================== MODIFICAR DESDE DTO ========================
     @Transactional
-    public UsuarioResponseDTO modificarDesdeDTO(Long id, UsuarioModifyDTO dto){
+    public UsuarioResponseDTO modificarDesdeDTO(Long id, UsuarioModifyDTO dto) {
         Usuario usuarioExistente = usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + id));
 
         validarCorreoUnicoParaModificacion(dto.correo(), id);
-        // agregado reciente
+
+        actualizarCampoSiNoEsNulo(dto.nombre(), usuarioExistente::setNombre);
+        actualizarCampoSiNoEsNulo(dto.apellido(), usuarioExistente::setApellido);
+        actualizarCampoSiNoEsNulo(dto.identificacion(), usuarioExistente::setIdentificacion);
+        actualizarCampoSiNoEsNulo(dto.correo(), value ->
+                usuarioExistente.setCorreo(normalizarCorreo(value)));
+        actualizarCampoSiNoEsNulo(dto.celular(), usuarioExistente::setCelular);
+
+        // Solo encriptar si se mandó una contraseña nueva
         if (dto.password() != null && !dto.password().isBlank()) {
             usuarioExistente.setPassword(passwordEncoder.encode(dto.password()));
         }
-        // Usar métodos de actualización condicional
-        actualizarCampoSiNoEsNulo(dto.nombre(), usuarioExistente::setNombre);
-        actualizarCampoSiNoEsNulo(dto.correo(), value ->
-                usuarioExistente.setCorreo(normalizarCorreo(value)));
 
-        //actualizo manualmente los campos permitidos
-        usuarioExistente.setNombre(dto.nombre());
-        usuarioExistente.setApellido(dto.apellido());
-        usuarioExistente.setIdentificacion(dto.identificacion());
-        usuarioExistente.setCorreo(dto.correo().trim().toLowerCase());
-        usuarioExistente.setPassword(dto.password());
-        usuarioExistente.setCelular(dto.celular());
-
-        // Si estoy manejando rol como String, lo puedo buscar en el repositorio de roles
         if (dto.rol() != null) {
             Rol rol = rolUsuarioRepository.findByUsuarioRol(UsuarioRol.valueOf(dto.rol()))
                     .orElseThrow(() -> new BadRequestException("Rol no válido: " + dto.rol()));
@@ -93,6 +89,12 @@ public class UsuarioService extends BaseServiceImpl  <Usuario, Long> implements 
         return usuarios.stream()
                 .map(UsuarioResponseDTO::new)
                 .collect(Collectors.toList());
+    }
+    public PageResponseDTO<UsuarioResponseDTO> listarPaginado(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Usuario> usuarios = usuarioRepository.findAll(pageable);
+        Page<UsuarioResponseDTO> dtoPage = usuarios.map(UsuarioResponseDTO::new);
+        return new PageResponseDTO<>(dtoPage);
     }
 
     @Override

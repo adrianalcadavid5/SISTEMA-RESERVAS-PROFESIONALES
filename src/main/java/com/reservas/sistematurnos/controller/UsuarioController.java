@@ -1,10 +1,12 @@
 package com.reservas.sistematurnos.controller;
 
+import com.reservas.sistematurnos.dto.PageDTO.PageResponseDTO;
 import com.reservas.sistematurnos.dto.usuario.UsuarioModifyDTO;
 import com.reservas.sistematurnos.dto.usuario.UsuarioRequestDTO;
 import com.reservas.sistematurnos.dto.usuario.UsuarioResponseDTO;
 import com.reservas.sistematurnos.service.impl.UsuarioService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +39,13 @@ public class UsuarioController {
     public ResponseEntity<List<UsuarioResponseDTO>> listarTodos(){
         return ResponseEntity.ok(usuarioService.buscarTodosDTO());
     }
+    @GetMapping("/paginado")
+    public ResponseEntity<PageResponseDTO<UsuarioResponseDTO>> listarPaginado(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(usuarioService.listarPaginado(page, size));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> buscarUsuario(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.buscarPorIdDTO(id));
