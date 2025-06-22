@@ -44,7 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         logger.info(String.format("📌 Nueva petición a: %s", request.getServletPath()));
 
-        if (request.getServletPath().contains("/auth")) {
+        String path = request.getServletPath();
+        if (path.startsWith("/auth") || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs") || path.equals("/swagger-ui.html") || path.equals("/usuarios")) {
             logger.info("🔹 Ruta pública, omitiendo filtro.");
             filterChain.doFilter(request, response);
             return;

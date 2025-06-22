@@ -33,10 +33,17 @@ public class GlobalHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> manejarTodasLasExcepciones(Exception e,HttpServletRequest request){
+    public ResponseEntity<ApiError> manejarTodasLasExcepciones(Exception e, HttpServletRequest request){
         logger.error("Error inesperado en la URL: {}", request.getRequestURI(), e);
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        ApiError apiError = new ApiError(
+                request.getRequestURI(),
+                "Error interno: " + e.getMessage(), // Considera no exponer esto en producción
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                ZonedDateTime.now(),
+                List.of()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
     }
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiError> handleBadRequestException(BadRequestException e, HttpServletRequest request){
